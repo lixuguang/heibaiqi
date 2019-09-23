@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>06-lixuguang-一直都在</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+
+      div {
+        display: inline-block;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script>
+      let board = [
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 2, 1, 0, 0, 0],
+        [0, 0, 0, 1, 2, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0]
+      ];
+      let player = 1;
+      let container = document.getElementById("container");
+
+      // 吃子规则 八个方向 往前找
+      // 如果找到同色继续走
+      // 如果找到不同色吃掉
+      // 如果为空吃不了
+
+      // 渲染棋盘的格
+      function qipan() {
+        let element = document.createElement("div"); // 创建dom
+        // 上色
+        element.style =
+          "width:50px;height:50px;background-color:gray;vertical-align: bottom;border:1px solid #fff";
+        // 添加
+        container.appendChild(element);
+        return element;
+      }
+      // 渲染棋盘的子
+      function qizi(element, i, j) {
+        if (board[i][j] == 1) {
+          // 如果为1上黑子
+          let disc = document.createElement("div");
+          disc.style =
+            "border-radius:20px;width:40px;height:40px;background-color:black;margin-top:5px;margin-left:5px;";
+          element.appendChild(disc);
+        }
+        if (board[i][j] == 2) {
+          // 如果为2上白子
+          let disc = document.createElement("div");
+          disc.style =
+            "border-radius:20px;width:40px;height:40px;background-color:white;margin-top:5px;margin-left:5px;";
+          element.appendChild(disc);
+        }
+      }
+      // 渲染
+      function render() {
+        container.innerHTML = ""; // 清空渲染
+        for (let i = 0; i < 8; i++) {
+          // 列渲染
+          for (let j = 0; j < 8; j++) {
+            // 行渲染
+            let element = qipan();
+            qizi(element, i, j);
+
+            // 绑定点击事件
+            element.onclick = function() {
+              // 落子
+              let ox = i,
+                oy = j; // 记录点击坐标点
+              let otherPlayer = false; // 另一个玩家
+              let canGo = false; // 是否可走
+              if (board[i][j] != 0) {
+                // 如果不为空点了没用
+                return;
+              }
+
+              while (--j >= 0) {
+                if (board[i][j] === 3 - player) {
+                  // 如果是对手棋子
+                  otherPlayer = true; // 置为true
+                }
+                if (board[i][j] === player) {
+                  // 如果是自己棋子
+                  otherPlayer && (canGo = true);
+                  break;
+                }
+                if (board[i][j] === 0) {
+                  // 没子不能走
+                  break;
+                }
+              }
+              if (canGo) {
+                while (j++ != oy) {
+                  // 吃子
+                  board[i][j] = player;
+                }
+                player = 3 - player; // 换人
+              }
+
+              j = oy;
+              while (++j <= 8) {
+                if (board[i][j] === 3 - player) {
+                  // 如果是对手棋子
+                  otherPlayer = true; // 置为true
+                }
+                if (board[i][j] === player) {
+                  // 如果是自己棋子
+                  otherPlayer && (canGo = true);
+                  break;
+                }
+                if (board[i][j] === 0) {
+                  // 没子不能走
+                  break;
+                }
+              }
+              if (canGo) {
+                while (j-- != oy) {
+                  // 吃子
+                  board[i][j] = player;
+                }
+                player = 3 - player; // 换人
+              }
+
+              // 点击后重新渲染
+              render();
+            };
+          }
+          container.appendChild(document.createElement("br"));
+        }
+      }
+      render();
+    </script>
+  </body>
+</html>

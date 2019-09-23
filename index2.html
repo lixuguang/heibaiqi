@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>06-lixuguang-一直都在</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        div {
+            display: inline-block;
+        }
+        
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: gray;
+            vertical-align: bottom;
+            border: 1px solid #fff;
+        }
+        
+        .cell.white::before {
+            content: '';
+            display: block;
+            border-radius: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            margin-top: 5px;
+            margin-left: 5px;
+        }
+        
+        .cell.black::before {
+            content: '';
+            display: block;
+            border-radius: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: black;
+            margin-top: 5px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script>
+        let board = [
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 2, 1, 0, 0, 0,
+            0, 0, 0, 1, 2, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+        ]
+        let player = 2;
+        let container = document.getElementById('container')
+
+        // 吃子规则 八个方向 往前找 
+        // 如果找到同色继续走
+        // 如果找到不同色吃掉
+        // 如果为空吃不了
+
+        // 同余
+        function render() {
+            container.innerHTML = ''
+            for (let k = 0; k < 64; k++) {
+                if (k > 0 && k % 8 === 0) {
+                    container.appendChild(document.createElement("br"))
+                }
+                let j = k % 8, i = (k - k % 8) / 8;
+                let element = document.createElement('div');
+                element.className = `cell ${board[k] === 1 ? 'black' : ''} ${board[k] === 2 ? 'white' : ''}`
+                container.appendChild(element);
+
+                element.onclick = function () { // 落子
+                    let ox = i, oy = j;
+                    let otherPlayer = false;
+                    let canGo = false;
+                    if (board[k] != 0) { // 如果为空吃不了
+                        return
+                    }
+                    // 左
+                    while (--j >= 0) {
+                        if (board[8 * i + j] === 3 - player) { // 如果是对手棋子
+                            otherPlayer = true // 置为true
+                        }
+                        if (board[8 * i + j] === player) { // 如果是自己棋子
+                            otherPlayer && (canGo = true);
+                            break;
+                        }
+                        if (board[8 * i + j] === 0) { // 没子不能走
+                            break;
+                        }
+                    }
+                    if (canGo) {
+                        while (j++ != oy) {
+                            // 吃子
+                            board[8 * i + j] = player
+                        }
+                        player = 3 - player // 换人
+                    }
+
+                    // 重新取棋子坐标
+                    j = oy;
+                    i = ox;
+                    // 右
+                    while (++j <= 8) {
+                        if (board[8 * i + j] === 3 - player) { // 如果是对手棋子
+                            otherPlayer = true // 置为true
+                        }
+                        if (board[8 * i + j] === player) { // 如果是自己棋子
+                            otherPlayer && (canGo = true);
+                            break;
+                        }
+                        if (board[8 * i + j] === 0) { // 没子不能走
+                            break;
+                        }
+                    }
+                    if (canGo) {
+                        while (j-- != oy) {
+                            // 吃子
+                            board[8 * i + j] = player
+                        }
+                        player = 3 - player // 换人
+                    }
+
+                    // 点击后重新渲染
+                    render()
+                }
+            }
+        }
+        render()
+    </script>
+</body>
